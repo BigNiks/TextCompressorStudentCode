@@ -25,21 +25,67 @@
  *  The {@code TextCompressor} class provides static methods for compressing
  *  and expanding natural language through textfile input.
  *
- *  @author Zach Blick, YOUR NAME HERE
+ *  @author Zach Blick, Niko Madriz
  */
 public class TextCompressor {
 
     private static void compress() {
 
         // TODO: Complete the compress() method
-
+        String[] words = new String[4];
+        int[] bwords = new int[4];
+        bwords[0] = 0b00000001;
+        bwords[1] = 0b00000010;
+        bwords[2] = 0b00000100;
+        bwords[3] = 0b00001000;
+        words[0] = "the";
+        words[1] = "and";
+        words[2] = "a";
+        words[3] = "be";
+        String encrypted = BinaryStdIn.readString();
+        int i = 0;
+        int n = encrypted.length();
+        while (i < n) {
+            for (int j = 0; j < words.length; j++) {
+                if (encrypted.substring(i, encrypted.indexOf(" ")).equals(words[j])) {
+                    BinaryStdOut.write(bwords[j]);
+                }
+                else {
+                    BinaryStdOut.write(encrypted.substring(i, encrypted.indexOf(" ")));
+                }
+            }
+            i++;
+        }
         BinaryStdOut.close();
     }
 
     private static void expand() {
 
         // TODO: Complete the expand() method
-
+        String[] words = new String[10];
+        int[] bwords = new int[10];
+        bwords[0] = 0b00000001;
+        bwords[1] = 0b00000010;
+        bwords[2] = 0b00000100;
+        bwords[3] = 0b00001000;
+        words[0] = "the";
+        words[1] = "and";
+        words[2] = "a";
+        words[3] = "be";
+        int i = 0;
+        int n = BinaryStdIn.readByte();
+        String encrypted = BinaryStdIn.readString();
+        while (i < n) {
+            for (int j = 0; j < 4; j++) {
+                if (encrypted.substring(i, i + 8).equals(bwords[i])) {
+                    BinaryStdOut.write(words[i]);
+                }
+                else {
+                    BinaryStdOut.write(encrypted.substring(i, i + 8));
+                }
+            }
+            i++;
+        }
         BinaryStdOut.close();
     }
 
