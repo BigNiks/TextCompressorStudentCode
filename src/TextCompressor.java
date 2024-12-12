@@ -32,57 +32,60 @@ public class TextCompressor {
     private static void compress() {
 
         // TODO: Complete the compress() method
-        String[] words = new String[4];
-        int[] bwords = new int[4];
-        bwords[0] = 0b00000001;
-        bwords[1] = 0b00000010;
-        bwords[2] = 0b00000100;
-        bwords[3] = 0b00001000;
-        words[0] = "the";
-        words[1] = "and";
-        words[2] = "a";
-        words[3] = "be";
+        TST tst = new TST();
+        for (int i = 0; i < 255; i++) {
+            char c = (char) i;
+            String s = "";
+            s += c;
+            tst.insert(s, i);
+        }
         String encrypted = BinaryStdIn.readString();
         int i = 0;
         int n = encrypted.length();
+        String prefix = "";
+        int prefixLength = 257;
         while (i < n) {
-            for (int j = 0; j < words.length; j++) {
-                if (encrypted.substring(i, encrypted.indexOf(" ")).equals(words[j])) {
-                    BinaryStdOut.write(bwords[j]);
-                }
-                else {
-                    BinaryStdOut.write(encrypted.substring(i, encrypted.indexOf(" ")));
-                }
+            prefix = tst.getLongestPrefix(encrypted, i);
+            BinaryStdOut.write(tst.lookup(prefix), 8);
+            if (i + prefix.length() < encrypted.length()) {
+                tst.insert(encrypted.substring(i + prefix.length(), i + prefix.length() + 1), prefixLength);
+                prefixLength++;
             }
-            i++;
+             i += prefix.length();
         }
+        BinaryStdOut.write(256);
         BinaryStdOut.close();
     }
 
     private static void expand() {
 
         // TODO: Complete the expand() method
-        String[] words = new String[10];
-        int[] bwords = new int[10];
-        bwords[0] = 0b00000001;
-        bwords[1] = 0b00000010;
-        bwords[2] = 0b00000100;
-        bwords[3] = 0b00001000;
-        words[0] = "the";
-        words[1] = "and";
-        words[2] = "a";
-        words[3] = "be";
+        String[] map = new String[4096];
+        for (int i = 0; i < 255; i++) {
+            char c = (char) i;
+            String s = "";
+            s += c;
+            map[i] = s;
+        }
         int i = 0;
         int n = BinaryStdIn.readByte();
         String encrypted = BinaryStdIn.readString();
+        String prefix = "";
+        String lookahead = "";
+        int pf = 257;
         while (i < n) {
-            for (int j = 0; j < 4; j++) {
-                if (encrypted.substring(i, i + 8).equals(bwords[i])) {
-                    BinaryStdOut.write(words[i]);
-                }
-                else {
-                    BinaryStdOut.write(encrypted.substring(i, i + 8));
-                }
+            int code = BinaryStdIn.readInt(8);
+            prefix = map[code];
+            BinaryStdOut.write(prefix);
+            int lookaheadCode = BinaryStdIn.readInt(8);
+            if (!map[lookaheadCode].isEmpty()) {
+                map[pf] = map[code] + map[lookaheadCode].substring(0, 1);
+            }
+            else {
+                map[pf] = map[code] + map[lookaheadCode];
+            }
+            if (code == 256) {
+                break;
             }
             i++;
         }
